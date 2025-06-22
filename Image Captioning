@@ -1,0 +1,62 @@
+#prompt: IMAGE CAPTIONING
+#Combine computer vision and natural language processing to build
+#an image captioning AI. Use pre-trained image recognition models
+#like VGG or ResNet to extract features from images, and then use a
+#recurrent neural network (RNN) or transformer-based model to
+#generate captions for those images.
+
+!pip install tensorflow matplotlib numpy
+
+import tensorflow as tf
+from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+import numpy as np
+import matplotlib.pyplot as plt
+
+#Load a pre-trained ResNet50 model without the top (classification) layer
+#This model will be used for feature extraction
+feature_extractor = ResNet50(weights='imagenet', include_top=False, pooling='avg')
+
+def extract_image_features(image_path):
+  """Extracts features from an image using the pre-trained ResNet50 model.
+
+  Args:
+    image_path: The path to the image file.
+
+  Returns:
+    A numpy array representing the extracted features.
+  """
+  img = load_img(image_path, target_size=(224, 224))
+  img_array = img_to_array(img)
+  img_array = np.expand_dims(img_array, axis=0)
+  img_array = preprocess_input(img_array)
+
+  features = feature_extractor.predict(img_array)
+  return features
+#Let's create a dummy image for demonstration purposes if you don't have one
+try:
+    #Attempt to load a local file if you have one
+    sample_image_path = 'sample_image.jpg'
+    #You would typically upload an image using files.upload() or mount Google Drive
+    #For this example, let's assume a dummy image file exists or we'll create one
+
+    #If no image file exists, let's create a dummy image using PIL (install if not present)
+    from PIL import Image
+    dummy_img = Image.new('RGB', (224, 224), color = 'red')
+    dummy_img.save('sample_image.jpg')
+    sample_image_path = 'sample_image.jpg'
+
+    extracted_features = extract_image_features(sample_image_path)
+    print(f"Shape of extracted features: {extracted_features.shape}")
+
+    #Visualize the image
+    img = load_img(sample_image_path)
+    plt.imshow(img)
+    plt.title("Sample Image")
+    plt.axis('off')
+    plt.show()
+
+except FileNotFoundError:
+    print("Please upload an image file or ensure 'sample_image.jpg' exists.")
+except Exception as e:
+    print(f"An error occurred: {e}")
